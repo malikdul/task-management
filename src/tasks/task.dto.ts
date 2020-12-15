@@ -8,7 +8,7 @@ export class TaskDto {
     public id: string;
     
     @IsNotEmpty()
-    public name: string;
+    public title: string;
     
     @IsNotEmpty()
     public description: string;

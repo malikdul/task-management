@@ -30,7 +30,6 @@ export class UserService {
             const entity = this.mapper.toEntity(user);
             entity.salt = await bcrypt.genSalt();
             entity.password = await bcrypt.hash(entity.password, entity.salt);
-            console.log(entity);
             return this.mapper.toDto(await this.repository.createUser(entity));
         } catch (error) {
             throw new InternalServerErrorException(error, "Unable to save user.");

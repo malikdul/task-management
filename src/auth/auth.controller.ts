@@ -8,7 +8,7 @@ import { LoginDto } from './login.dto';
 export class AuthController {
     logger = new Logger('AuthController');
     constructor(
-        private readonly service: UserService,
+        private readonly userService: UserService,
         private jwtService: JwtService,
     ) {}
     
@@ -17,7 +17,7 @@ export class AuthController {
         if(!login) {
             throw new NotAcceptableException("data is empty");
         }
-        const user = await this.service.findByEmail(login.email);
+        const user = await this.userService.findByEmail(login.email);
 
         if (!user || !await user.validatePassword(login.password)) {
             throw new UnauthorizedException('Invalid credentials');

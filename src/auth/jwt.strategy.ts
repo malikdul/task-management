@@ -25,8 +25,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException();
     }
 
-    console.log('fond user', user)
-
     return user;
   }
 }

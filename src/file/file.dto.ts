@@ -5,4 +5,5 @@ export class FileDto {
     filename: string;
     path: string;
     size: number;
+    taskId: number;
 }

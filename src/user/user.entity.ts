@@ -1,11 +1,10 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 import * as bcrypt from 'bcrypt';
+import { SuperEntity } from "src/common/base.entity";
 
 @Entity()
-export class User extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+export class User extends SuperEntity {
     
     @Column()
     first_name: string;

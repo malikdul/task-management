@@ -10,4 +10,12 @@ export class TasksFilterDto {
   @IsOptional()
   @IsNotEmpty()
   search: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  page: number;
+
+  @IsOptional()
+  @IsNotEmpty()
+  limit: number;
 }

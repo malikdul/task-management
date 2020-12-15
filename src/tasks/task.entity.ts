@@ -1,15 +1,15 @@
 
+import { SuperEntity } from "src/common/base.entity";
+import { Attachment } from "src/file/attachment.entity";
 import { User } from "src/user/user.entity";
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TaskStatus } from "./task-status.enum";
 
 @Entity()
-export class Task extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    public id: string;
+export class Task extends SuperEntity {
     
     @Column()
-    public name: string;
+    public title: string;
     
     @Column()
     public description: string;
@@ -23,4 +23,8 @@ export class Task extends BaseEntity {
 
     @Column()
     userId: number;
+    
+    @OneToMany(type => Attachment, attachment => attachment.task, { eager: true, onDelete: 'CASCADE' })
+    attachments: Attachment[];
+
 }
