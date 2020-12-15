@@ -8,6 +8,7 @@ import { User } from 'src/user/user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { TasksFilterDto } from './tasks-filter.dto';
 import { PaginatedResult } from '../common/format.result';
+import { ApiBody, ApiQuery } from '@nestjs/swagger';
 
 @Controller('tasks')
 @UseGuards(AuthGuard())
@@ -17,12 +18,14 @@ export class TasksController {
         private readonly service: TasksService
     ) { }
 
+    @ApiQuery({ name: 'role', type: TasksFilterDto })
     @Get()
     getTasks(@Query() filterDto: TasksFilterDto, @GetUser() user: User): Promise<PaginatedResult> {
         this.logger.verbose(`User "${user.email}" retrieving all tasks. Filters: ${JSON.stringify(filterDto)}`);
         return this.service.getTasks(filterDto, user);
     }
 
+    @ApiBody({ type: [TaskDto] })
     @Post()
     async addTask(@Body() task: TaskDto, @GetUser() user: User): Promise<TaskDto> {
         this.logger.verbose(`User "${user.email}" adding new task: "${task.title}".`);
@@ -32,6 +35,7 @@ export class TasksController {
         return await this.service.addTask(task, user);
     }
 
+    @ApiBody({ type: [TaskDto] })
     @Put()
     async updateTask(@Body() task: TaskDto, @GetUser() user: User): Promise<TaskDto> {
         this.logger.verbose(`User "${user.email}" updating task with id: "${task.id}".`);
