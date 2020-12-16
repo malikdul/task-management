@@ -10,6 +10,7 @@ import { ReportRWService } from './report.writer';
 
 @Injectable()
 export class ReportService {
+
     constructor(
         @InjectRepository(TaskRepository)
         private taskRepository: TaskRepository,
@@ -44,22 +45,75 @@ export class ReportService {
         return report;
     }
 
-    async getMaxCount(user: User, day: Date): Promise<any> {
+    async getMaxCount(user: User): Promise<any> {
         const REPORT_NAME = 'max-count-report.json';
         let result = await this.reportRW.getCachedReport(REPORT_NAME);
-        if(result) {
+        if (result) {
             return result;
         }
 
-        result = await this.taskRepository.createQueryBuilder('task')
+        const query = this.taskRepository.createQueryBuilder('task')
             .select("count(distinct task.*), CAST(task.\"updatedAt\" AS DATE)")
-            .where("task.userId = :id AND task.status = 'DONE' ", { id: user.id })
+            .where("task.status = 'DONE' ", { id: user.id })
             .groupBy("CAST(task.\"updatedAt\" AS DATE)")
-            .orderBy("count", 'DESC')
+            .orderBy("count", 'DESC');
+
+        if (user.role !== 'admin') {
+            query.andWhere("task.userId = :id ", { id: user.id })
+        }
+
+        result = await query
+        .take(1)  
+        .getRawMany();
+
+        this.reportRW.write(REPORT_NAME, { createdAt: new Date(), report: result })
+        return result;
+    }
+
+    async getMaxCountAdded(user: User): Promise<any> {
+        const REPORT_NAME = 'max-count-report.json';
+        let result = await this.reportRW.getCachedReport(REPORT_NAME);
+        if (result) {
+            return result;
+        }
+        const query = this.taskRepository.createQueryBuilder('task')
+            .select("count(distinct task.*), CAST(task.\"createdAt\" AS DATE)")
+            .groupBy("CAST(task.\"createdAt\" AS DATE)")
+            .orderBy("count", 'DESC');
+
+        if (user.role !== 'admin') {
+            query.where("task.userId = :id ", { id: user.id })
+        }
+
+        result = await query
             .take(1)
             .getRawMany();
 
         this.reportRW.write(REPORT_NAME, { createdAt: new Date(), report: result })
+        return result;
+    }
+
+    async getSimilarTasks(user: User): Promise<any> {
+        const REPORT_NAME = 'similar-tasks-report.json';
+        let result = await this.reportRW.getCachedReport(REPORT_NAME);
+        if (result) {
+            return result;
+        }
+        result = await this.taskRepository.createQueryBuilder('task')
+        .select(`distinct t1.id as taskId1, t2.id as taskId2, 
+                    similarity(t1.title, t2.title) AS score_title, 
+                    similarity(t1.description, t2.description) AS score_desc, 
+                    t1.title as title1, t2.title as title2`)
+        .from("task", "t1")
+        .leftJoin("task", "t2", "t1.title <> t2.title")
+        .where("similarity(t1.title, t2.title) >= 0.6")
+        .orderBy("score_desc", 'DESC') 
+        .orderBy("score_title", 'DESC') 
+        .take(1)  
+        .getRawMany();
+        
+        this.reportRW.write(REPORT_NAME, { createdAt: new Date(), report: result })
+        
         return result;
     }
 

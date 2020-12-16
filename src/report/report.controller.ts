@@ -1,4 +1,4 @@
-import { Controller, Get, Logger, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Logger, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { TaskReport } from 'src/common/format.result';
@@ -28,6 +28,22 @@ export class ReportController {
     @Get('max/day')
     getMaxInDay(@GetUser() user: User): Promise<TaskReport> {
         this.logger.verbose(`User "${user.email}" with role ${user.role} retrieving day average task report.`);
-        return this.service.getMaxCount(user, new Date());
+        return this.service.getMaxCount(user);
+    }
+
+    @Get('max/added')
+    getMaxAddedInDay(@GetUser() user: User): Promise<TaskReport> {
+        this.logger.verbose(`User "${user.email}" with role ${user.role} retrieving max task added report.`);
+        return this.service.getMaxCountAdded(user);
+    }
+
+    //TODO:: isntall PG extention postgresql-contrib
+    //TODO:: apt-get install postgresql-contrib
+    //TODO:: CREATE EXTENSION pg_trgm;
+    @Get('similar')
+    getSimilarTasks(@GetUser() user: User): Promise<TaskReport> {
+        this.logger.verbose(`User "${user.email}" with role ${user.role} retrieving similar tasks report.`);
+        return this.service.getSimilarTasks(user);
     }
 }
+

@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import { IsEmail, IsNotEmpty, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsIn, IsNotEmpty, IsOptional, MaxLength, MinLength } from "class-validator";
+import { UserRole } from "./user.role";
 
 export class UserDto {
 
@@ -31,5 +32,8 @@ export class UserDto {
     @Exclude()
     salt: string;
 
-    role: string;
+    @ApiProperty({description: 'role must be from one of values i.e. USER, ADMIN'})
+    @IsOptional()
+    @IsIn([UserRole.USER, UserRole.ADMIN])
+    role: UserRole;
 }
